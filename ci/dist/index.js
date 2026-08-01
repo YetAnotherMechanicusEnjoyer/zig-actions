@@ -6324,7 +6324,7 @@ async function installZig(version) {
 async function runCommand(cmd, name) {
     if (!cmd || cmd.trim() === '' || cmd === 'none')
         return;
-    const failure = core.getBooleanInput('failure-on-error', { required: true }) || true;
+    const failure = core.getBooleanInput('failure-on-error', { required: true });
     core.startGroup(`Executing ${name}...`);
     const isWindows = external_process_namespaceObject.platform === 'win32';
     const shell = isWindows ? 'cmd' : 'sh';
