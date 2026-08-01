@@ -21,16 +21,5 @@ inputs:
     default: "zig build test"
 
 runs:
-  using: "composite"
-  steps:
-    - name: Zig Setup
-      uses: mlugg/setup-zig@v1
-      with:
-        version: ${{ inputs.zig-version }}
-
-    - name: Zig CI
-      shell: bash
-      env:
-        INPUT_WORKING_DIRECTORY: ${{ inputs.working-directory }}
-        INPUT_COMMAND_TEST: ${{ inputs.command-test }}
-      run: node ${{ github.action_path }}/dist/index.js
+  using: "node20"
+  main: "dist/index.js"

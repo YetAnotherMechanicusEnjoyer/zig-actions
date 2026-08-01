@@ -1,7 +1,11 @@
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
+import * as tc from '@actions/tool-cache';
+import * as os from 'os';
 import * as process from 'process';
+import * as path from 'path';
 
+const DEFAULT_ZIG_VERSION = "0.16.0";
 const ZIG_ERROR_REGEX = /^([^:]+):(\d+):(\d+):\s+(error|warning):\s+(.*)$/;
 
 function parseZigOutput(line: string) {
@@ -29,6 +33,53 @@ function parseZigOutput(line: string) {
   }
 }
 
+async function installZig(version: string): Promise<void> {
+  const v = version === "master" ? "master" : `v${version}`;
+  core.startGroup(`Installing Zig ${v}`);
+
+  const platform = os.platform();
+  const arch = os.arch();
+
+  let zigPlatform = '';
+  let ext = 'tar.xz';
+
+  if (platform === 'linux') zigPlatform = 'linux';
+  else if (platform === 'darwin') zigPlatform = 'macos';
+  else if (platform === 'win32') {
+    zigPlatform = 'windows';
+    ext = 'zip';
+  } else {
+    throw new Error(`Unsupported OS: ${platform}`);
+  }
+
+  let zigArch = '';
+  if (arch === 'x64') zigArch = 'x86_64';
+  else if (arch === 'arm64') zigArch = 'aarch64';
+  else {
+    throw new Error(`Unsupported architecture: ${arch}`);
+  }
+
+  const url = `https://ziglang.org/download/${version}/zig-${zigPlatform}-${zigArch}-${version}.${ext}`;
+  core.info(`Downloading from: ${url}`);
+
+  const downloadPath = await tc.downloadTool(url);
+  let extractedPath = '';
+
+  core.info(`Extracting archive...`);
+  if (ext === 'zip') {
+    extractedPath = await tc.extractZip(downloadPath);
+  } else {
+    extractedPath = await tc.extractTar(downloadPath, undefined, 'x');
+  }
+
+  const folderName = `zig-${zigPlatform}-${zigArch}-${version}`;
+  const toolPath = path.join(extractedPath, folderName);
+
+  core.addPath(toolPath);
+  core.info(`Zig installed & added the PATH.`);
+  core.endGroup();
+}
+
 async function runCommand(cmd: string, name: string): Promise<void> {
   if (!cmd || cmd.trim() === '' || cmd === 'none') return;
 
@@ -54,8 +105,11 @@ async function runCommand(cmd: string, name: string): Promise<void> {
 
 async function run(): Promise<void> {
   try {
-    const workingDir = core.getInput('WORKING_DIRECTORY') || '.';
-    const testCmd = core.getInput('COMMAND_TEST') || 'zig build test';
+    const version = core.getInput('zig-version') || DEFAULT_ZIG_VERSION;
+    const workingDir = core.getInput('working-directory') || '.';
+    const testCmd = core.getInput('command-test') || 'zig build test';
+
+    await installZig(version);
 
     if (workingDir && workingDir !== '.') {
       core.info(`Changing working directory: ${workingDir}`);
