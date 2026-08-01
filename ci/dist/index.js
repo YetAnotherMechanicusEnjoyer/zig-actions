@@ -6326,12 +6326,13 @@ async function runCommand(cmd, name) {
     const shell = isWindows ? 'cmd' : 'sh';
     const shellArgs = isWindows ? ['/c', cmd] : ['-c', cmd];
     const exitCode = await exec.exec(shell, shellArgs, {
+        ignoreReturnCode: true,
         listeners: {
             stdline: (data) => parseZigOutput(data),
             errline: (data) => parseZigOutput(data)
         }
     });
-    if (exitCode) {
+    if (exitCode !== 0) {
         throw new Error(`Command ${name} failed. More details in annotations.`);
     }
     core.endGroup();

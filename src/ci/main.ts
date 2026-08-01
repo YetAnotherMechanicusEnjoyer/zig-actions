@@ -107,7 +107,7 @@ async function runCommand(cmd: string, name: string): Promise<void> {
     }
   });
 
-  if (exitCode) {
+  if (exitCode !== 0) {
     throw new Error(`Command ${name} failed. More details in annotations.`);
   }
 
