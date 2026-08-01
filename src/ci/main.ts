@@ -100,6 +100,7 @@ async function runCommand(cmd: string, name: string): Promise<void> {
   const shellArgs = isWindows ? ['/c', cmd] : ['-c', cmd];
 
   const exitCode = await exec.exec(shell, shellArgs, {
+    ignoreReturnCode: true,
     listeners: {
       stdline: (data: string) => parseZigOutput(data),
       errline: (data: string) => parseZigOutput(data)
