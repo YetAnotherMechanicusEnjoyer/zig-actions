@@ -1,0 +1,23 @@
+name: Test CI
+on: [push, pull_request]
+
+jobs:
+  test-action:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Successful Zig CI
+        uses: ./ci
+        with:
+          zig-version: "master"
+          working-directory: "./tests"
+          command-test: "zig test success.zig"
+
+      - name: Failing Zig CI
+        uses: ./ci
+        with:
+          zig-version: "master"
+          working-directory: "./tests"
+          command-test: "zig test error.zig"
