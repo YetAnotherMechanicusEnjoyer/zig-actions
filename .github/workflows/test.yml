@@ -11,13 +11,13 @@ jobs:
       - name: Successful Zig CI
         uses: ./ci
         with:
-          zig-version: "master"
+          zig-version: "0.16.0"
           working-directory: "./tests"
           command-test: "zig test success.zig"
 
       - name: Failing Zig CI
         uses: ./ci
         with:
-          zig-version: "master"
+          zig-version: "0.16.0"
           working-directory: "./tests"
           command-test: "zig test error.zig"
