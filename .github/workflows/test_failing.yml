@@ -1,4 +1,5 @@
-name: Test CI
+name: Test Failing CI
+run-name: Test Failing CI
 on: [push, pull_request]
 
 jobs:
@@ -7,13 +8,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Successful Zig CI
-        uses: ./ci
-        with:
-          zig-version: "0.16.0"
-          working-directory: "./tests"
-          command-test: "zig test success.zig"
 
       - name: Failing Zig CI
         uses: ./ci

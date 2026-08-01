@@ -6245,7 +6245,7 @@ var external_fs_ = __nccwpck_require__(896);
 
 
 const DEFAULT_ZIG_VERSION = "0.16.0";
-const ZIG_ERROR_REGEX = /^([^:]+):(\d+):(\d+):\s+(error|warning):\s+(.*)$/;
+const ZIG_ERROR_REGEX = /^(.+?):(\d+):(\d+):\s*([^\s:]+)(?::\s*|\s+in\s+)(.*)$/;
 function parseZigOutput(line) {
     const match = line.match(ZIG_ERROR_REGEX);
     if (match) {
@@ -6260,7 +6260,7 @@ function parseZigOutput(line) {
             startLine: lineNum,
             startColumn: colNum,
         };
-        if (type === 'error') {
+        if (type === 'error' || type.startsWith('0x')) {
             core.error(message, properties);
         }
         else if (type === 'warning') {
@@ -6336,7 +6336,7 @@ async function runCommand(cmd, name) {
         }
     });
     if (exitCode !== 0) {
-        throw new Error(`Command ${name} failed. More details in annotations.`);
+        throw new Error(`Command ${name} failed. More details in logs.`);
     }
     core.endGroup();
 }

@@ -7,7 +7,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 
 const DEFAULT_ZIG_VERSION = "0.16.0";
-const ZIG_ERROR_REGEX = /^([^:]+):(\d+):(\d+):\s+(error|warning):\s+(.*)$/;
+const ZIG_ERROR_REGEX = /^(.+?):(\d+):(\d+):\s*([^\s:]+)(?::\s*|\s+in\s+)(.*)$/;
 
 function parseZigOutput(line: string) {
   const match = line.match(ZIG_ERROR_REGEX);
@@ -26,7 +26,7 @@ function parseZigOutput(line: string) {
       startColumn: colNum,
     };
 
-    if (type === 'error') {
+    if (type === 'error' || type.startsWith('0x')) {
       core.error(message, properties);
     } else if (type === 'warning') {
       core.warning(message, properties);
@@ -110,7 +110,7 @@ async function runCommand(cmd: string, name: string): Promise<void> {
   });
 
   if (exitCode !== 0) {
-    throw new Error(`Command ${name} failed. More details in annotations.`);
+    throw new Error(`Command ${name} failed. More details in logs.`);
   }
 
   core.endGroup();
