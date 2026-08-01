@@ -3496,7 +3496,7 @@ function parseZigOutput(line) {
 async function runCommand(cmd, name) {
     if (!cmd || cmd.trim() === '' || cmd === 'none')
         return;
-    core.startGroup(`Exécution : ${name}`);
+    core.startGroup(`Executing ${name}...`);
     try {
         const isWindows = process.platform === 'win32';
         const shell = isWindows ? 'cmd' : 'sh';
