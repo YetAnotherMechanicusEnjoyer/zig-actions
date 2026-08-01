@@ -6266,6 +6266,9 @@ function parseZigOutput(line) {
         else if (type === 'warning') {
             core.warning(message, properties);
         }
+        else {
+            core.notice(message, properties);
+        }
     }
 }
 async function installZig(version) {

@@ -30,6 +30,8 @@ function parseZigOutput(line: string) {
       core.error(message, properties);
     } else if (type === 'warning') {
       core.warning(message, properties);
+    } else {
+      core.notice(message, properties);
     }
   }
 }
