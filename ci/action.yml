@@ -19,6 +19,10 @@ inputs:
     description: "Build test command"
     required: false
     default: "zig build test"
+  failure-on-error:
+    description: "Return an Action Failure on error"
+    required: false
+    default: "true"
 
 runs:
   using: "node24"

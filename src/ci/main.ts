@@ -94,6 +94,7 @@ async function installZig(version: string): Promise<void> {
 
 async function runCommand(cmd: string, name: string): Promise<void> {
   if (!cmd || cmd.trim() === '' || cmd === 'none') return;
+  const failure = core.getBooleanInput('failure-on-error') || true;
 
   core.startGroup(`Executing ${name}...`);
 
@@ -109,7 +110,7 @@ async function runCommand(cmd: string, name: string): Promise<void> {
     }
   });
 
-  if (exitCode !== 0) {
+  if (failure && exitCode !== 0) {
     throw new Error(`Command ${name} failed. More details in logs.`);
   }
 

@@ -6324,6 +6324,7 @@ async function installZig(version) {
 async function runCommand(cmd, name) {
     if (!cmd || cmd.trim() === '' || cmd === 'none')
         return;
+    const failure = core.getBooleanInput('failure-on-error') || true;
     core.startGroup(`Executing ${name}...`);
     const isWindows = external_process_namespaceObject.platform === 'win32';
     const shell = isWindows ? 'cmd' : 'sh';
@@ -6335,7 +6336,7 @@ async function runCommand(cmd, name) {
             errline: (data) => parseZigOutput(data)
         }
     });
-    if (exitCode !== 0) {
+    if (failure && exitCode !== 0) {
         throw new Error(`Command ${name} failed. More details in logs.`);
     }
     core.endGroup();
