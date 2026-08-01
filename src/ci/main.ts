@@ -59,7 +59,7 @@ async function installZig(version: string): Promise<void> {
     throw new Error(`Unsupported architecture: ${arch}`);
   }
 
-  const url = `https://ziglang.org/download/${version}/zig-${zigPlatform}-${zigArch}-${version}.${ext}`;
+  const url = `https://ziglang.org/download/${version}/zig-${zigArch}-${zigPlatform}-${version}.${ext}`;
   core.info(`Downloading from: ${url}`);
 
   const downloadPath = await tc.downloadTool(url);
