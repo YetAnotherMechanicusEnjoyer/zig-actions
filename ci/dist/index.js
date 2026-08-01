@@ -1262,7 +1262,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.argStringToArray = exports.ToolRunner = void 0;
 const os = __importStar(__nccwpck_require__(857));
 const events = __importStar(__nccwpck_require__(434));
-const child = __importStar(__nccwpck_require__(317));
+const child = __importStar(__nccwpck_require__(698));
 const path = __importStar(__nccwpck_require__(928));
 const io = __importStar(__nccwpck_require__(994));
 const ioUtil = __importStar(__nccwpck_require__(207));
@@ -3188,7 +3188,7 @@ const core_1 = __nccwpck_require__(484);
 // needs to be require for core node modules to be mocked
 /* eslint @typescript-eslint/no-require-imports: 0 */
 const os = __nccwpck_require__(857);
-const cp = __nccwpck_require__(317);
+const cp = __nccwpck_require__(698);
 const fs = __nccwpck_require__(896);
 function _findMatch(versionSpec, stable, candidates, archFilter) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -6059,164 +6059,6 @@ module.exports = v4;
 
 /***/ }),
 
-/***/ 323:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const core = __importStar(__nccwpck_require__(484));
-const exec = __importStar(__nccwpck_require__(236));
-const tc = __importStar(__nccwpck_require__(472));
-const os = __importStar(__nccwpck_require__(857));
-const process = __importStar(__nccwpck_require__(932));
-const path = __importStar(__nccwpck_require__(928));
-const DEFAULT_ZIG_VERSION = "0.16.0";
-const ZIG_ERROR_REGEX = /^([^:]+):(\d+):(\d+):\s+(error|warning):\s+(.*)$/;
-function parseZigOutput(line) {
-    const match = line.match(ZIG_ERROR_REGEX);
-    if (match) {
-        const file = match[1];
-        const lineNum = parseInt(match[2], 10);
-        const colNum = parseInt(match[3], 10);
-        const type = match[4];
-        const message = match[5];
-        const properties = {
-            title: `Zig Compiler ${type === 'error' ? 'Error' : 'Warning'}`,
-            file: file,
-            startLine: lineNum,
-            startColumn: colNum,
-        };
-        if (type === 'error') {
-            core.error(message, properties);
-        }
-        else if (type === 'warning') {
-            core.warning(message, properties);
-        }
-    }
-}
-async function installZig(version) {
-    const v = version === "master" ? "master" : `v${version}`;
-    core.startGroup(`Installing Zig ${v}`);
-    const platform = os.platform();
-    const arch = os.arch();
-    let zigPlatform = '';
-    let ext = 'tar.xz';
-    if (platform === 'linux')
-        zigPlatform = 'linux';
-    else if (platform === 'darwin')
-        zigPlatform = 'macos';
-    else if (platform === 'win32') {
-        zigPlatform = 'windows';
-        ext = 'zip';
-    }
-    else {
-        throw new Error(`Unsupported OS: ${platform}`);
-    }
-    let zigArch = '';
-    if (arch === 'x64')
-        zigArch = 'x86_64';
-    else if (arch === 'arm64')
-        zigArch = 'aarch64';
-    else {
-        throw new Error(`Unsupported architecture: ${arch}`);
-    }
-    const url = `https://ziglang.org/download/${version}/zig-${zigArch}-${zigPlatform}-${version}.${ext}`;
-    core.info(`Downloading from: ${url}`);
-    const downloadPath = await tc.downloadTool(url);
-    let extractedPath = '';
-    core.info(`Extracting archive...`);
-    if (ext === 'zip') {
-        extractedPath = await tc.extractZip(downloadPath);
-    }
-    else {
-        extractedPath = await tc.extractTar(downloadPath, undefined, 'x');
-    }
-    const folderName = `zig-${zigPlatform}-${zigArch}-${version}`;
-    const toolPath = path.join(extractedPath, folderName);
-    core.addPath(toolPath);
-    core.info(`Zig installed & added the PATH.`);
-    core.endGroup();
-}
-async function runCommand(cmd, name) {
-    if (!cmd || cmd.trim() === '' || cmd === 'none')
-        return;
-    core.startGroup(`Executing ${name}...`);
-    try {
-        const isWindows = process.platform === 'win32';
-        const shell = isWindows ? 'cmd' : 'sh';
-        const shellArgs = isWindows ? ['/c', cmd] : ['-c', cmd];
-        await exec.exec(shell, shellArgs, {
-            listeners: {
-                stdline: (data) => parseZigOutput(data),
-                errline: (data) => parseZigOutput(data)
-            }
-        });
-    }
-    catch (error) {
-        throw new Error(`Command "${name}" failed. More details in annotations.`);
-    }
-    finally {
-        core.endGroup();
-    }
-}
-async function run() {
-    try {
-        const version = core.getInput('zig-version') || DEFAULT_ZIG_VERSION;
-        const workingDir = core.getInput('working-directory') || '.';
-        const testCmd = core.getInput('command-test') || 'zig build test';
-        await installZig(version);
-        if (workingDir && workingDir !== '.') {
-            core.info(`Changing working directory: ${workingDir}`);
-            process.chdir(workingDir);
-        }
-        await runCommand(testCmd, 'Tests');
-        core.info('CI ended successfully!');
-    }
-    catch (error) {
-        if (error instanceof Error) {
-            core.setFailed(error.message);
-        }
-    }
-}
-run();
-
-
-/***/ }),
-
 /***/ 613:
 /***/ ((module) => {
 
@@ -6225,7 +6067,7 @@ module.exports = require("assert");
 
 /***/ }),
 
-/***/ 317:
+/***/ 698:
 /***/ ((module) => {
 
 "use strict";
@@ -6294,14 +6136,6 @@ module.exports = require("os");
 
 "use strict";
 module.exports = require("path");
-
-/***/ }),
-
-/***/ 932:
-/***/ ((module) => {
-
-"use strict";
-module.exports = require("process");
 
 /***/ }),
 
@@ -6383,13 +6217,153 @@ module.exports = require("util");
 /******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
 /******/ 	
 /************************************************************************/
-/******/ 	
-/******/ 	// startup
-/******/ 	// Load entry module and return exports
-/******/ 	// This entry module is referenced by other modules so it can't be inlined
-/******/ 	var __webpack_exports__ = __nccwpck_require__(323);
-/******/ 	module.exports = __webpack_exports__;
-/******/ 	
+var __webpack_exports__ = {};
+// This entry need to be wrapped in an IIFE because it need to be in strict mode.
+(() => {
+"use strict";
+
+// EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
+var core = __nccwpck_require__(484);
+// EXTERNAL MODULE: ./node_modules/@actions/exec/lib/exec.js
+var exec = __nccwpck_require__(236);
+// EXTERNAL MODULE: ./node_modules/@actions/tool-cache/lib/tool-cache.js
+var tool_cache = __nccwpck_require__(472);
+// EXTERNAL MODULE: external "os"
+var external_os_ = __nccwpck_require__(857);
+;// CONCATENATED MODULE: external "process"
+const external_process_namespaceObject = require("process");
+// EXTERNAL MODULE: external "path"
+var external_path_ = __nccwpck_require__(928);
+// EXTERNAL MODULE: external "fs"
+var external_fs_ = __nccwpck_require__(896);
+;// CONCATENATED MODULE: ./src/ci/main.ts
+
+
+
+
+
+
+
+const DEFAULT_ZIG_VERSION = "0.16.0";
+const ZIG_ERROR_REGEX = /^([^:]+):(\d+):(\d+):\s+(error|warning):\s+(.*)$/;
+function parseZigOutput(line) {
+    const match = line.match(ZIG_ERROR_REGEX);
+    if (match) {
+        const file = match[1];
+        const lineNum = parseInt(match[2], 10);
+        const colNum = parseInt(match[3], 10);
+        const type = match[4];
+        const message = match[5];
+        const properties = {
+            title: `Zig Compiler ${type === 'error' ? 'Error' : 'Warning'}`,
+            file: file,
+            startLine: lineNum,
+            startColumn: colNum,
+        };
+        if (type === 'error') {
+            core.error(message, properties);
+        }
+        else if (type === 'warning') {
+            core.warning(message, properties);
+        }
+    }
+}
+async function installZig(version) {
+    const v = version === "master" ? "master" : `v${version}`;
+    core.startGroup(`Installing Zig ${v}`);
+    const platform = external_os_.platform();
+    const arch = external_os_.arch();
+    let zigPlatform = '';
+    let ext = 'tar.xz';
+    if (platform === 'linux')
+        zigPlatform = 'linux';
+    else if (platform === 'darwin')
+        zigPlatform = 'macos';
+    else if (platform === 'win32') {
+        zigPlatform = 'windows';
+        ext = 'zip';
+    }
+    else {
+        throw new Error(`Unsupported OS: ${platform}`);
+    }
+    let zigArch = '';
+    if (arch === 'x64')
+        zigArch = 'x86_64';
+    else if (arch === 'arm64')
+        zigArch = 'aarch64';
+    else {
+        throw new Error(`Unsupported architecture: ${arch}`);
+    }
+    const url = `https://ziglang.org/download/${version}/zig-${zigArch}-${zigPlatform}-${version}.${ext}`;
+    core.info(`Downloading from: ${url}`);
+    const downloadPath = await tool_cache.downloadTool(url);
+    let extractedPath = '';
+    core.info(`Extracting archive...`);
+    if (ext === 'zip') {
+        extractedPath = await tool_cache.extractZip(downloadPath);
+    }
+    else {
+        extractedPath = await tool_cache.extractTar(downloadPath, undefined, 'x');
+    }
+    const items = external_fs_.readdirSync(extractedPath);
+    let toolPath = extractedPath;
+    const zigFolder = items.find(item => {
+        const itemPath = external_path_.join(extractedPath, item);
+        return item.startsWith('zig-') && external_fs_.statSync(itemPath).isDirectory();
+    });
+    if (zigFolder) {
+        toolPath = external_path_.join(extractedPath, zigFolder);
+    }
+    core.addPath(toolPath);
+    core.info(`Zig installed & added the PATH.`);
+    core.endGroup();
+}
+async function runCommand(cmd, name) {
+    if (!cmd || cmd.trim() === '' || cmd === 'none')
+        return;
+    core.startGroup(`Executing ${name}...`);
+    try {
+        const isWindows = external_process_namespaceObject.platform === 'win32';
+        const shell = isWindows ? 'cmd' : 'sh';
+        const shellArgs = isWindows ? ['/c', cmd] : ['-c', cmd];
+        await exec.exec(shell, shellArgs, {
+            listeners: {
+                stdline: (data) => parseZigOutput(data),
+                errline: (data) => parseZigOutput(data)
+            }
+        });
+    }
+    catch (error) {
+        throw new Error(`Command "${name}" failed. More details in annotations.`);
+    }
+    finally {
+        core.endGroup();
+    }
+}
+async function run() {
+    try {
+        const version = core.getInput('zig-version') || DEFAULT_ZIG_VERSION;
+        const workingDir = core.getInput('working-directory') || '.';
+        const testCmd = core.getInput('command-test') || 'zig build test';
+        await installZig(version);
+        if (workingDir && workingDir !== '.') {
+            core.info(`Changing working directory: ${workingDir}`);
+            external_process_namespaceObject.chdir(workingDir);
+        }
+        await runCommand(testCmd, 'Tests');
+        core.info('CI ended successfully!');
+    }
+    catch (error) {
+        if (error instanceof Error) {
+            core.setFailed(error.message);
+        }
+    }
+}
+run();
+
+})();
+
+module.exports = __webpack_exports__;
 /******/ })()
 ;
 //# sourceMappingURL=index.js.map

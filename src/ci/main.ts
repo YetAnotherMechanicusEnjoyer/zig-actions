@@ -4,6 +4,7 @@ import * as tc from '@actions/tool-cache';
 import * as os from 'os';
 import * as process from 'process';
 import * as path from 'path';
+import * as fs from 'fs';
 
 const DEFAULT_ZIG_VERSION = "0.16.0";
 const ZIG_ERROR_REGEX = /^([^:]+):(\d+):(\d+):\s+(error|warning):\s+(.*)$/;
@@ -72,8 +73,17 @@ async function installZig(version: string): Promise<void> {
     extractedPath = await tc.extractTar(downloadPath, undefined, 'x');
   }
 
-  const folderName = `zig-${zigPlatform}-${zigArch}-${version}`;
-  const toolPath = path.join(extractedPath, folderName);
+  const items = fs.readdirSync(extractedPath);
+
+  let toolPath = extractedPath;
+  const zigFolder = items.find(item => {
+    const itemPath = path.join(extractedPath, item);
+    return item.startsWith('zig-') && fs.statSync(itemPath).isDirectory();
+  });
+
+  if (zigFolder) {
+    toolPath = path.join(extractedPath, zigFolder);
+  }
 
   core.addPath(toolPath);
   core.info(`Zig installed & added the PATH.`);
