@@ -6322,23 +6322,19 @@ async function runCommand(cmd, name) {
     if (!cmd || cmd.trim() === '' || cmd === 'none')
         return;
     core.startGroup(`Executing ${name}...`);
-    try {
-        const isWindows = external_process_namespaceObject.platform === 'win32';
-        const shell = isWindows ? 'cmd' : 'sh';
-        const shellArgs = isWindows ? ['/c', cmd] : ['-c', cmd];
-        await exec.exec(shell, shellArgs, {
-            listeners: {
-                stdline: (data) => parseZigOutput(data),
-                errline: (data) => parseZigOutput(data)
-            }
-        });
+    const isWindows = external_process_namespaceObject.platform === 'win32';
+    const shell = isWindows ? 'cmd' : 'sh';
+    const shellArgs = isWindows ? ['/c', cmd] : ['-c', cmd];
+    const exitCode = await exec.exec(shell, shellArgs, {
+        listeners: {
+            stdline: (data) => parseZigOutput(data),
+            errline: (data) => parseZigOutput(data)
+        }
+    });
+    if (exitCode) {
+        throw new Error(`Command ${name} failed. More details in annotations.`);
     }
-    catch (error) {
-        throw new Error(`Command "${name}" failed. More details in annotations.`);
-    }
-    finally {
-        core.endGroup();
-    }
+    core.endGroup();
 }
 async function run() {
     try {

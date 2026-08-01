@@ -95,22 +95,22 @@ async function runCommand(cmd: string, name: string): Promise<void> {
 
   core.startGroup(`Executing ${name}...`);
 
-  try {
-    const isWindows = process.platform === 'win32';
-    const shell = isWindows ? 'cmd' : 'sh';
-    const shellArgs = isWindows ? ['/c', cmd] : ['-c', cmd];
+  const isWindows = process.platform === 'win32';
+  const shell = isWindows ? 'cmd' : 'sh';
+  const shellArgs = isWindows ? ['/c', cmd] : ['-c', cmd];
 
-    await exec.exec(shell, shellArgs, {
-      listeners: {
-        stdline: (data: string) => parseZigOutput(data),
-        errline: (data: string) => parseZigOutput(data)
-      }
-    });
-  } catch (error) {
-    throw new Error(`Command "${name}" failed. More details in annotations.`);
-  } finally {
-    core.endGroup();
+  const exitCode = await exec.exec(shell, shellArgs, {
+    listeners: {
+      stdline: (data: string) => parseZigOutput(data),
+      errline: (data: string) => parseZigOutput(data)
+    }
+  });
+
+  if (exitCode) {
+    throw new Error(`Command ${name} failed. More details in annotations.`);
   }
+
+  core.endGroup();
 }
 
 async function run(): Promise<void> {
