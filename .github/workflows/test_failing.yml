@@ -1,4 +1,4 @@
-name: Test Failing CI
+name: Failing Without Action Failure Zig CI
 run-name: Test Failing CI
 on: [push, pull_request]
 
@@ -16,10 +16,3 @@ jobs:
           working-directory: "./tests"
           command-test: "zig test error.zig"
           failure-on-error: false
-
-      - name: Failing Zig CI
-        uses: ./ci
-        with:
-          zig-version: "0.16.0"
-          working-directory: "./tests"
-          command-test: "zig test error.zig"
