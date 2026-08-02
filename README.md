@@ -11,7 +11,7 @@ Add this step to your workflow after checking out your repository:
 ```yaml
 steps:
   - uses: actions/checkout@v4
-  - uses: YetAnotherMechanicusEnjoyer/zig-actions@v1
+  - uses: pathum25/zig-actions@v1
     with:
       zig-version: '0.16.0'
       working-directory: '.'
@@ -26,7 +26,7 @@ Add this step to your workflow after checking out your repository:
 ```yaml
 steps:
   - uses: actions/checkout@v4
-  - uses: YetAnotherMechanicusEnjoyer/zig-actions/ci@v1
+  - uses: pathum25/zig-actions/ci@v1
     with:
       zig-version: '0.16.0'
       working-directory: '.'
