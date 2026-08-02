@@ -1,0 +1,40 @@
+name: "Zig Docs CD"
+description: "Generate & deploy documentation to Github Pages"
+
+author: "YetAnotherMechanicusEnjoyer"
+branding:
+  icon: "package"
+  color: "yellow"
+
+inputs:
+  zig-version:
+    description: "Zig version"
+    required: false
+    default: "0.16.0"
+  working-directory:
+    description: "Working directroy"
+    required: false
+    default: "."
+  command-docs:
+    description: "Build documentation command"
+    required: false
+    default: "zig build docs"
+  failure-on-error:
+    description: "Return an Action Failure on error"
+    required: false
+    default: "true"
+  docs-directory:
+    description: "Generated docs directory (e.g.: zig-out/docs)"
+    required: false
+    default: "zig-out/docs"
+  deploy-branch:
+    description: "Branch to deploy on (e.g.: gh-pages)"
+    required: false
+    default: "gh-pages"
+  github-token:
+    description: "GitHub Token (secrets.GITHUB_TOKEN)"
+    required: true
+
+runs:
+  using: "node24"
+  main: "dist/index.js"

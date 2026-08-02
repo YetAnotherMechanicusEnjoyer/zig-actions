@@ -6228,14 +6228,14 @@ var core = __nccwpck_require__(484);
 var exec = __nccwpck_require__(236);
 ;// CONCATENATED MODULE: external "process"
 const external_process_namespaceObject = require("process");
-// EXTERNAL MODULE: ./node_modules/@actions/tool-cache/lib/tool-cache.js
-var tool_cache = __nccwpck_require__(472);
-// EXTERNAL MODULE: external "os"
-var external_os_ = __nccwpck_require__(857);
 // EXTERNAL MODULE: external "path"
 var external_path_ = __nccwpck_require__(928);
 // EXTERNAL MODULE: external "fs"
 var external_fs_ = __nccwpck_require__(896);
+// EXTERNAL MODULE: ./node_modules/@actions/tool-cache/lib/tool-cache.js
+var tool_cache = __nccwpck_require__(472);
+// EXTERNAL MODULE: external "os"
+var external_os_ = __nccwpck_require__(857);
 ;// CONCATENATED MODULE: ./src/utils.ts
 
 
@@ -6293,75 +6293,59 @@ async function installZig(version) {
     core.endGroup();
 }
 
-;// CONCATENATED MODULE: ./src/ci/main.ts
+;// CONCATENATED MODULE: ./src/docs/main.ts
 
 
 
 
-const DEFAULT_ZIG_VERSION = "0.16.0";
-const ZIG_ERROR_REGEX = /^(.+?):(\d+):(\d+):\s*([^\s:]+)(?::\s*|\s+in\s+)(.*)$/;
-function parseZigOutput(line) {
-    const match = line.match(ZIG_ERROR_REGEX);
-    if (match) {
-        const file = match[1];
-        const lineNum = parseInt(match[2], 10);
-        const colNum = parseInt(match[3], 10);
-        const type = match[4];
-        const message = match[5];
-        const properties = {
-            title: `Zig Compiler ${type === 'error' ? 'Error' : 'Warning'}`,
-            file: file,
-            startLine: lineNum,
-            startColumn: colNum,
-        };
-        if (type === 'error' || type.startsWith('0x')) {
-            core.error(message, properties);
-        }
-        else if (type === 'warning') {
-            core.warning(message, properties);
-        }
-        else {
-            core.notice(message, properties);
-        }
+
+
+async function deployDocs(docsFolder, branch, token) {
+    core.startGroup(`Deploying on branch ${branch}`);
+    const fullDocsPath = external_path_.resolve(docsFolder);
+    if (!external_fs_.existsSync(fullDocsPath)) {
+        throw new Error(`Documentation directory "${docsFolder}" not found. Documentation generation failed?`);
     }
-}
-async function runCommand(cmd, name) {
-    if (!cmd || cmd.trim() === '' || cmd === 'none')
-        return;
-    const failure = core.getBooleanInput('failure-on-error', { required: true });
-    core.startGroup(`Executing ${name}...`);
-    const isWindows = external_process_namespaceObject.platform === 'win32';
-    const shell = isWindows ? 'cmd' : 'sh';
-    const shellArgs = isWindows ? ['/c', cmd] : ['-c', cmd];
-    const exitCode = await exec.exec(shell, shellArgs, {
-        ignoreReturnCode: true,
-        listeners: {
-            stdline: (data) => parseZigOutput(data),
-            errline: (data) => parseZigOutput(data)
-        }
-    });
-    if (failure === true && exitCode !== 0) {
-        throw new Error(`Command ${name} failed. More details in logs.`);
-    }
+    const repo = external_process_namespaceObject.env.GITHUB_REPOSITORY;
+    const remoteUrl = `https://x-access-token:${token}@github.com/${repo}.git`;
+    const execOpts = { cwd: fullDocsPath };
+    await exec.exec('git', ['init'], execOpts);
+    await exec.exec('git', ['checkout', '-b', branch], execOpts);
+    await exec.exec('git', ['config', 'user.name', 'github-actions[bot]'], execOpts);
+    await exec.exec('git', ['config', 'user.email', 'github-actions[bot]@users.noreply.github.com'], execOpts);
+    await exec.exec('git', ['add', '.'], execOpts);
+    await exec.exec('git', ['commit', '-m', 'feat(docs): Deploy Zig documentation'], execOpts);
+    await exec.exec('git', ['push', '-f', remoteUrl, branch], execOpts);
+    core.info(`Documentation pushed successfully on ${branch}!`);
     core.endGroup();
 }
 async function run() {
     try {
-        const version = core.getInput('zig-version') || DEFAULT_ZIG_VERSION;
+        const version = core.getInput('zig-version') || '0.16.0';
         const workingDir = core.getInput('working-directory') || '.';
-        const testCmd = core.getInput('command-test') || 'zig build test';
+        const commandDocs = core.getInput('command-docs') || 'zig build docs';
+        const docsFolder = core.getInput('docs-folder') || 'zig-out/docs';
+        const deployBranch = core.getInput('deploy-branch') || 'gh-pages';
+        const token = core.getInput('github-token', { required: true });
         await installZig(version);
         if (workingDir && workingDir !== '.') {
-            core.info(`Changing working directory: ${workingDir}`);
             external_process_namespaceObject.chdir(workingDir);
         }
-        await runCommand(testCmd, 'Tests');
-        core.info('CI ended successfully!');
+        core.startGroup('Generating documentation');
+        const isWindows = external_process_namespaceObject.platform === 'win32';
+        const shell = isWindows ? 'cmd' : 'sh';
+        const shellArgs = isWindows ? ['/c', commandDocs] : ['-c', commandDocs];
+        const exitCode = await exec.exec(shell, shellArgs, { ignoreReturnCode: true });
+        if (exitCode !== 0) {
+            throw new Error(`Generation failed (exit code: ${exitCode})`);
+        }
+        core.endGroup();
+        await deployDocs(docsFolder, deployBranch, token);
+        core.info('Zig Docs CD ended!');
     }
     catch (error) {
-        if (error instanceof Error) {
+        if (error instanceof Error)
             core.setFailed(error.message);
-        }
     }
 }
 run();

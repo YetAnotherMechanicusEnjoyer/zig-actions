@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "build:ci": "ncc build src/ci/main.ts -o ci/dist --source-map --license licenses.txt",
-    "build": "npm run build:ci"
+    "build:docs": "ncc build src/docs/main.ts -o docs/dist --source-map --license licenses.txt",
+    "build": "npm run build:ci && npm run build:docs"
   },
   "dependencies": {
     "@actions/core": "^1.10.1",
