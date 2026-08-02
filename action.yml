@@ -23,6 +23,21 @@ inputs:
     description: "Return an Action Failure on error"
     required: false
     default: "true"
+  command-docs:
+    description: "Build documentation command"
+    required: false
+    default: "zig build docs"
+  docs-directory:
+    description: "Generated docs directory (e.g.: zig-out/docs)"
+    required: false
+    default: "zig-out/docs"
+  deploy-branch:
+    description: "Branch to deploy on (e.g.: gh-pages)"
+    required: false
+    default: "gh-pages"
+  github-token:
+    description: "GitHub Token (secrets.GITHUB_TOKEN)"
+    required: true
 
 runs:
   using: "composite"
@@ -34,3 +49,13 @@ runs:
         working-directory: ${{ inputs.working-directory }}
         command-test: ${{ inputs.command-test }}
         failure-on-error: ${{ inputs.failure-on-error }}
+
+    - name: Zig Docs CD
+      uses: YetAnotherMechanicusEnjoyer/zig-actions/docs@v1
+      with:
+        zig-version: ${{ inputs.zig-version }}
+        working-directory: ${{ inputs.working-directory }}
+        command-docs: ${{ inputs.command-docs }}
+        docs-directory: ${{ inputs.docs-directory }}
+        deploy-branch: ${{ inputs.deploy-branch }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}

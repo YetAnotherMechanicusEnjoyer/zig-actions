@@ -19,10 +19,6 @@ inputs:
     description: "Build documentation command"
     required: false
     default: "zig build docs"
-  failure-on-error:
-    description: "Return an Action Failure on error"
-    required: false
-    default: "true"
   docs-directory:
     description: "Generated docs directory (e.g.: zig-out/docs)"
     required: false
