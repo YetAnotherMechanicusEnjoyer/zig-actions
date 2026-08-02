@@ -28,7 +28,7 @@ runs:
   using: "composite"
   steps:
     - name: Zig CI
-      uses: ./ci
+      uses: YetAnotherMechanicusEnjoyer/zig-actions/ci@v1
       with:
         zig-version: ${{ inputs.zig-version }}
         working-directory: ${{ inputs.working-directory }}
