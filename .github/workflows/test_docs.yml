@@ -22,4 +22,4 @@ jobs:
           zig-version: "0.16.0"
           working-directory: "./tests/docs"
           command-docs: "zig build docs"
-          docs-folder: "zig-out/docs"
+          docs-directory: "zig-out/docs"
