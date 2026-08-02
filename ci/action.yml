@@ -1,7 +1,7 @@
 name: "Zig CI"
 description: "A modular Zig CI"
 
-author: "YetAnotherMechanicusEnjoyer"
+author: "pathum25"
 branding:
   icon: "package"
   color: "yellow"
