@@ -13,5 +13,5 @@ jobs:
         uses: ./ci
         with:
           zig-version: "0.16.0"
-          working-directory: "./tests"
+          working-directory: "./tests/ci"
           command-test: "zig test success.zig"
