@@ -19,7 +19,7 @@ inputs:
     description: "Binary name (without extension)"
     required: true
   target:
-    description: "Compilation target (ex: x86_64-linux, aarch64-macos)"
+    description: "Compilation target (e.g.: x86_64-linux, aarch64-macos)"
     required: true
   optimize:
     description: "Compilation optimization (Debug, ReleaseSafe, ReleaseFast, ReleaseSmall)"
