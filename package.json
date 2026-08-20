@@ -5,11 +5,13 @@
   "scripts": {
     "build:ci": "ncc build src/ci/main.ts -o ci/dist --source-map --license licenses.txt",
     "build:docs": "ncc build src/docs/main.ts -o docs/dist --source-map --license licenses.txt",
-    "build": "npm run build:ci && npm run build:docs"
+    "build:release": "ncc build src/release/main.ts -o release/dist --source-map --license licenses.txt",
+    "build": "npm run build:ci && npm run build:docs && npm run build:release"
   },
   "dependencies": {
     "@actions/core": "^1.10.1",
     "@actions/exec": "^1.1.1",
+    "@actions/github": "^9.1.1",
     "@actions/tool-cache": "^2.0.0"
   },
   "devDependencies": {
