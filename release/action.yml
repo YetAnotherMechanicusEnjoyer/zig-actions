@@ -1,0 +1,37 @@
+name: "Zig Release"
+description: "Compile, package & publishes Zig binaries to GitHub Releases"
+
+author: "YetAnotherMechanicusEnjoyer"
+branding:
+  icon: "package"
+  color: "yellow"
+
+inputs:
+  zig-version:
+    description: "Zig version"
+    required: false
+    default: "0.16.0"
+  working-directory:
+    description: "Root directroy"
+    required: false
+    default: "."
+  binary-name:
+    description: "Binary name (without extension)"
+    required: true
+  target:
+    description: "Compilation target (ex: x86_64-linux, aarch64-macos)"
+    required: true
+  optimize:
+    description: "Compilation optimization (Debug, ReleaseSafe, ReleaseFast, ReleaseSmall)"
+    required: false
+    default: "ReleaseFast"
+  extra-files:
+    description: "Files to include in the archive (separated by commas)"
+    required: false
+  github-token:
+    description: "GitHub Token (secrets.GITHUB_TOKEN)"
+    required: true
+
+runs:
+  using: "node24"
+  main: "dist/index.js"
