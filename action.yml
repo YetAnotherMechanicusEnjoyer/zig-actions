@@ -15,6 +15,7 @@ inputs:
     description: "Root directroy"
     required: false
     default: "."
+
   command-test:
     description: "Build test command"
     required: false
@@ -23,6 +24,7 @@ inputs:
     description: "Return an Action Failure on error"
     required: false
     default: "true"
+
   command-docs:
     description: "Build documentation command"
     required: false
@@ -35,6 +37,21 @@ inputs:
     description: "Branch to deploy on (e.g.: gh-pages)"
     required: false
     default: "gh-pages"
+
+  binary-name:
+    description: "Binary name (without extension)"
+    required: true
+  target:
+    description: "Compilation target (ex: x86_64-linux, aarch64-macos)"
+    required: true
+  optimize:
+    description: "Compilation optimization (Debug, ReleaseSafe, ReleaseFast, ReleaseSmall)"
+    required: false
+    default: "ReleaseFast"
+  extra-files:
+    description: "Files to include in the archive (separated by commas)"
+    required: false
+
   github-token:
     description: "GitHub Token (secrets.GITHUB_TOKEN)"
     required: true
@@ -58,4 +75,15 @@ runs:
         command-docs: ${{ inputs.command-docs }}
         docs-directory: ${{ inputs.docs-directory }}
         deploy-branch: ${{ inputs.deploy-branch }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Zig Release
+      uses: YetAnotherMechanicusEnjoyer/zig-actions/release@v1
+      with:
+        zig-version: ${{ inputs.zig-version }}
+        working-directory: ${{ inputs.working-directory }}
+        binary-name: ${{ inputs.binary-name }}
+        target: ${{ inputs.target }}
+        optimize: ${{ inputs.optimize }}
+        extra-files: ${{ inputs.extra-files }}
         github-token: ${{ secrets.GITHUB_TOKEN }}
