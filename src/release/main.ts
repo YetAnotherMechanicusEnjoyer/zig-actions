@@ -20,7 +20,7 @@ async function run(): Promise<void> {
     const token = core.getInput('github-token', { required: true });
     const binaryName = core.getInput('binary-name', { required: true });
     const target = core.getInput('target', { required: true });
-    const version = core.getInput('zig-version') || '0.16.0';
+    const version = core.getInput('zig-version') || '0.17.1';
     const optimize = core.getInput('optimize') || 'ReleaseFast';
     const extraFiles = core.getInput('extra-files');
 

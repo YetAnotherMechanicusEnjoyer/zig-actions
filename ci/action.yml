@@ -10,7 +10,7 @@ inputs:
   zig-version:
     description: "Zig version"
     required: false
-    default: "0.16.0"
+    default: "0.17.1"
   working-directory:
     description: "Root directroy"
     required: false

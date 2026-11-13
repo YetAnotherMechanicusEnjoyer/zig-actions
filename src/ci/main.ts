@@ -3,7 +3,7 @@ import * as exec from '@actions/exec';
 import * as process from 'process';
 import { installZig } from '../utils';
 
-const DEFAULT_ZIG_VERSION = "0.16.0";
+const DEFAULT_ZIG_VERSION = "0.17.1";
 const ZIG_ERROR_REGEX = /^(.+?):(\d+):(\d+):\s*([^\s:]+)(?::\s*|\s+in\s+)(.*)$/;
 
 function parseZigOutput(line: string) {

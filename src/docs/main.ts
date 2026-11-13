@@ -32,7 +32,7 @@ async function deployDocs(docsFolder: string, branch: string, token: string): Pr
 
 async function run(): Promise<void> {
   try {
-    const version = core.getInput('zig-version') || '0.16.0';
+    const version = core.getInput('zig-version') || '0.17.1';
     const workingDir = core.getInput('working-directory') || '.';
     const commandDocs = core.getInput('command-docs') || 'zig build docs';
     const docsFolder = core.getInput('docs-folder') || 'zig-out/docs';
